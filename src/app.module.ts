@@ -1,4 +1,4 @@
-import { CacheModule, Module } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { CriaProposta } from './usecase/CriaProposta';
 import { PropostaCreditoFacilController } from './http/controller/PropostaCreditoFacilController';
 import { PropostaRepositoryFacadeImpl } from './database/repository/PropostaRepositoryFacadeImpl';
@@ -26,6 +26,9 @@ import { TelefoneRepositoryFacade } from './database/repository/TelefoneReposito
 import { TelefoneRepositoryFacadeImpl } from './database/repository/TelefoneRepositoryFacadeImpl';
 import { ConfigModule } from '@nestjs/config';
 import { RedisService } from './config/Redis';
+import { ClientsModule, Transport, ClientKafka } from '@nestjs/microservices';
+import { PropostaCreditoFacilPublisher } from './publisher/PropostaCreditoFacilPublisher';
+import { Partitioners } from 'kafkajs';
 
 
 
@@ -37,8 +40,8 @@ import { RedisService } from './config/Redis';
       host: 'localhost', //process.env.DB_HOST
       port: 1521, //process.env.DB_PORT
       username: 'SYSTEM', //process.env.DB_USER,
-      password : 'admin', //process.env.DB_PASS
-      sid: 'XE', 
+      password: 'admin', //process.env.DB_PASS
+      sid: 'XE',
       entities: [__dirname + '/../**/*.entity{.ts,.js}'],
       synchronize: false,
       autoLoadEntities: true,
@@ -58,6 +61,29 @@ import { RedisService } from './config/Redis';
       Endereco,
       Telefone
     ]),
+    //kafka connection producer
+    ClientsModule.register([
+      {
+        name: 'KAFKA_SERVICE',
+        transport: Transport.KAFKA,
+        options: {
+          client: {
+            clientId: 'credit_proposal',
+            brokers: ['localhost:9092'],
+          },
+          consumer: {
+            groupId: 'credit-proposal-group',
+            allowAutoTopicCreation: true,
+            sessionTimeout: 1 * 30 * 1000,
+          },
+          producer: {
+            allowAutoTopicCreation: true,
+            transactionTimeout: 1 * 30 * 1000,
+            createPartitioner: Partitioners.LegacyPartitioner,
+          },
+        },
+      },
+    ]),
   ],
   controllers: [
     PropostaCreditoFacilController,
@@ -75,6 +101,7 @@ import { RedisService } from './config/Redis';
     EnderecoRepository,
     TelefoneRepository,
     RedisService,
+    PropostaCreditoFacilPublisher,
     {
       provide: PropostaRepositoryFacade,
       useClass: PropostaRepositoryFacadeImpl,
@@ -91,7 +118,15 @@ import { RedisService } from './config/Redis';
       provide: TelefoneRepositoryFacade,
       useClass: TelefoneRepositoryFacadeImpl,
     },
+    {
+      //create kafka producer
+      provide: 'PROPOSAL_PRODUCER',
+      useFactory: async(kafkaService: ClientKafka) => {
+        return kafkaService.connect();
+      },
+      inject: ['KAFKA_SERVICE']
+    },
   ],
   exports: [PropostaRepositoryFacade, ProponenteRepositoryFacade],
 })
-export class AppModule {}
+export class AppModule { }

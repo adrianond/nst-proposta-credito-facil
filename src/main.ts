@@ -2,6 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { BadRequestException, LogLevel, ValidationError, ValidationPipe } from '@nestjs/common';
+
 async function bootstrap() {
   process.env.TZ = 'America/Fortaleza';
 
@@ -26,6 +27,8 @@ async function bootstrap() {
       );
     },
   }));
+  
+  //app.startAllMicroservices();
 
   const swaggerConfig = new DocumentBuilder()
     .setTitle('NST-PROPOSTA-CREDITO-FACIL')
