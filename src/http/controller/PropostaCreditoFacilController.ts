@@ -65,10 +65,10 @@ export class PropostaCreditoFacilController {
 
     
     @MessagePattern(topicoPropostaCreditoFacil)
-    async consumePropostaCreditoFacilMessage(@Payload() payload: Proposta) {
-        this.logger.log(`Consumindo messagens do topico, ${topicoPropostaCreditoFacil}`)
-        this.logger.log(JSON.stringify(payload))
+    async consumePropostaCreditoFacilMessage(@Payload() proposta: Proposta) {
+        this.logger.log(`Consumindo mensagem do topico, ${topicoPropostaCreditoFacil}`)
+        this.logger.log(JSON.stringify(proposta))
          
-        await this.analiseAutomatica.executar(payload.proponente);
+        await this.analiseAutomatica.executar(proposta);
     }
 }

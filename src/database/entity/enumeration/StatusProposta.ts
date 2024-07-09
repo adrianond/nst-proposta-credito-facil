@@ -3,9 +3,10 @@ export class StatusProposta {
     static EM_PREENCHIMENTO = new StatusProposta('Em preenchimento')
     static ENVIADO_ANALISE = new StatusProposta('Enviado analise')
     static EM_ANALISE = new StatusProposta('Em analise')
-    static PENDENCIA = new StatusProposta('pendencia')
-    static RECUSADO = new StatusProposta('recusado')
-    static APROVADO = new StatusProposta('aprovado')
+    static PENDENCIA = new StatusProposta('Pendencia')
+    static RECUSADA = new StatusProposta('Recusada')
+    static APROVADA = new StatusProposta('Aprovada')
+    static ANALISE_MANUAL = new StatusProposta('Analise manual')
 
 
     constructor(name) {

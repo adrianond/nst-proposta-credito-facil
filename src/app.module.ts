@@ -30,6 +30,10 @@ import { ClientsModule, Transport, ClientKafka } from '@nestjs/microservices';
 import { PropostaCreditoFacilPublisher } from './publisher/PropostaCreditoFacilPublisher';
 import { Partitioners } from 'kafkajs';
 import { AnaliseAutomatica } from './usecase/AnaliseAutomatica';
+import { CadastroAprovado } from './database/entity/CadastroAprovado';
+import { CadastroAprovadoRepository } from './database/repository/CadastroAprovadoRepository';
+import { CadastroAprovadoRepositoryFacade } from './database/repository/CadastroAprovadoRepositoryFacade';
+import { CadastroAprovadoRepositoryFacadeImpl } from './database/repository/CadastroAprovadoRepositoryFacadeImpl';
 const { propostaCreditoFacilGroupId, kafkaClientId, kafkaEndPoint } = require('./util/ConfigEnv');
 
 
@@ -60,7 +64,8 @@ const { propostaCreditoFacilGroupId, kafkaClientId, kafkaEndPoint } = require('.
       Proposta,
       Proponente,
       Endereco,
-      Telefone
+      Telefone,
+      CadastroAprovado
     ]),
     //kafka connection producer
     ClientsModule.register([
@@ -102,6 +107,7 @@ const { propostaCreditoFacilGroupId, kafkaClientId, kafkaEndPoint } = require('.
     ProponenteRepository,
     EnderecoRepository,
     TelefoneRepository,
+    CadastroAprovadoRepository,
     RedisService,
     PropostaCreditoFacilPublisher,
     {
@@ -119,6 +125,10 @@ const { propostaCreditoFacilGroupId, kafkaClientId, kafkaEndPoint } = require('.
     {
       provide: TelefoneRepositoryFacade,
       useClass: TelefoneRepositoryFacadeImpl,
+    },
+    {
+      provide: CadastroAprovadoRepositoryFacade,
+      useClass: CadastroAprovadoRepositoryFacadeImpl,
     },
     {
       //create kafka producer
