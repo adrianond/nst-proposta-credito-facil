@@ -81,7 +81,7 @@ Nest is [MIT licensed](LICENSE).
   "proponenteDTO":{
   "nome": "TESTE",
   "dataNascimento": "2024-06-07T20:38:38.531Z",
-  "cpf": "000000",
+  "cpf": "12345678912",
   "rg": "00000",
   "sexo": "M",
   "renda": 10000,

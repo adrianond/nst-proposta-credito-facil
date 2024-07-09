@@ -2,6 +2,9 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { BadRequestException, LogLevel, ValidationError, ValidationPipe } from '@nestjs/common';
+import { Transport } from '@nestjs/microservices';
+const { propostaCreditoFacilGroupId, kafkaClientId, kafkaEndPoint, kafkaRetryCount } = require('./util/ConfigEnv');
+
 
 async function bootstrap() {
   process.env.TZ = 'America/Fortaleza';
@@ -27,8 +30,25 @@ async function bootstrap() {
       );
     },
   }));
+
   
-  //app.startAllMicroservices();
+  app.connectMicroservice({
+    transport: Transport.KAFKA,
+    options: {
+        client: {
+            clientId: kafkaClientId,
+            brokers: [kafkaEndPoint],
+            retry: {
+                retries: kafkaRetryCount,
+            },
+        },
+        consumer: {
+            groupId: propostaCreditoFacilGroupId,
+        },
+    },
+});
+  
+  app.startAllMicroservices();
 
   const swaggerConfig = new DocumentBuilder()
     .setTitle('NST-PROPOSTA-CREDITO-FACIL')

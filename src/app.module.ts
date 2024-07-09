@@ -29,7 +29,8 @@ import { RedisService } from './config/Redis';
 import { ClientsModule, Transport, ClientKafka } from '@nestjs/microservices';
 import { PropostaCreditoFacilPublisher } from './publisher/PropostaCreditoFacilPublisher';
 import { Partitioners } from 'kafkajs';
-
+import { AnaliseAutomatica } from './usecase/AnaliseAutomatica';
+const { propostaCreditoFacilGroupId, kafkaClientId, kafkaEndPoint } = require('./util/ConfigEnv');
 
 
 @Module({
@@ -68,11 +69,11 @@ import { Partitioners } from 'kafkajs';
         transport: Transport.KAFKA,
         options: {
           client: {
-            clientId: 'credit_proposal',
-            brokers: ['localhost:9092'],
+            clientId: kafkaClientId,
+            brokers: [kafkaEndPoint],
           },
           consumer: {
-            groupId: 'credit-proposal-group',
+            groupId: propostaCreditoFacilGroupId,
             allowAutoTopicCreation: true,
             sessionTimeout: 1 * 30 * 1000,
           },
@@ -95,6 +96,7 @@ import { Partitioners } from 'kafkajs';
     ExcluiProposta,
     ExcluiProponente,
     ConsultaPropostas,
+    AnaliseAutomatica,
     PropostaConverter,
     PropostaRepository,
     ProponenteRepository,
@@ -129,4 +131,4 @@ import { Partitioners } from 'kafkajs';
   ],
   exports: [PropostaRepositoryFacade, ProponenteRepositoryFacade],
 })
-export class AppModule { }
+export class AppModule {}

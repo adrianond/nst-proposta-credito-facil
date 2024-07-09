@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, HttpCode, Inject, Param, Post } from "@nestjs/common";
+import { Body, Controller, Delete, Get, HttpCode, Inject, Logger, Param, Post } from "@nestjs/common";
 import { ApiBody, ApiConsumes, ApiOperation, ApiProduces } from "@nestjs/swagger";
 import { CriaPropostaResponse } from "src/http/domain/response/CriaPropostaResponse";
 import { ConsultaProposta } from "src/usecase/ConsultaProposta";
@@ -8,16 +8,22 @@ import { CriaPropostaRequest } from "../domain/request/CriaPropostaRequest";
 import { ExcluiProposta } from "src/usecase/ExcluiProposta";
 import { ConsultaPropostas } from "src/usecase/ConsultaPropostas";
 import { ConsultaPropostasResponse } from "../domain/response/ConsultaPropostasResponse";
+import { MessagePattern, Payload } from "@nestjs/microservices";
+import { AnaliseAutomatica } from "src/usecase/AnaliseAutomatica";
+import { Proposta } from "src/database/entity/Proposta";
+const { topicoPropostaCreditoFacil } = require('../../util/ConfigEnv');
 
 
 @Controller('proposals')
 export class PropostaCreditoFacilController {
+    private readonly logger = new Logger(PropostaCreditoFacilController.name);
 
     constructor(private criaProposta: CriaProposta,
         private consultaProposta: ConsultaProposta,
         private excluiProposta: ExcluiProposta,
-        private consultaPropostas: ConsultaPropostas
-    ) { }
+        private consultaPropostas: ConsultaPropostas,
+        private analiseAutomatica: AnaliseAutomatica
+    ) {}
 
 
     @Post()
@@ -31,7 +37,7 @@ export class PropostaCreditoFacilController {
     }
 
 
-    
+
     @Get()
     @HttpCode(200)
     @ApiOperation({ summary: 'Get proposals' })
@@ -51,10 +57,18 @@ export class PropostaCreditoFacilController {
 
     @Delete('/proposal/:id')
     @HttpCode(204)
-    @ApiOperation({ summary: 'Delete a proposal by id' })
+    @ApiOperation({ summary: 'Delete proposal by id' })
     @ApiProduces('application/json')
     async deleteProposalById(@Param('id') id: number): Promise<void> {
         return await (this.excluiProposta.execute(id));
     }
 
+    
+    @MessagePattern(topicoPropostaCreditoFacil)
+    async consumePropostaCreditoFacilMessage(@Payload() payload: Proposta) {
+        this.logger.log(`Consumindo messagens do topico, ${topicoPropostaCreditoFacil}`)
+        this.logger.log(JSON.stringify(payload))
+         
+        await this.analiseAutomatica.executar(payload.proponente);
+    }
 }

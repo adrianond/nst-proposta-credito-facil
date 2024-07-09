@@ -20,8 +20,6 @@ export class CriaProposta {
         let criaPropostaResponse = new CriaPropostaResponse();
 
         const propostaSalva = await this.propostaRepositoryFacade.save(this.propostaConverter.fromDtoToentity(criaPropostaRequest))
-        console.log(propostaSalva)
-
         this.propostaCreditoFacilPublisher.publish(propostaSalva);
         
         criaPropostaResponse.id = propostaSalva.id;
