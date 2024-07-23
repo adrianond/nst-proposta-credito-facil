@@ -9,17 +9,21 @@ import { Proponente } from "src/database/entity/Proponente";
 import { EnderecoDTO } from "../dto/EnderecoDTO";
 import { Telefone } from "src/database/entity/Telefone";
 import { TelefoneDTO } from "../dto/TelefoneDTO";
+const moment = require('moment-timezone');
 
 @Injectable()
 export class PropostaConverter {
+    private static readonly timeZone = "America/Fortaleza";
 
     fromEntityToDto(proposta: Proposta): PropostaDTO {
         let propostaDTO = new PropostaDTO();
 
         propostaDTO.id = proposta.id;
         propostaDTO.status = proposta.status;
-        propostaDTO.dataCriacao = proposta.dataCriacao;
-        propostaDTO.dataAlteracao = proposta.dataAlteracao;
+        //2024-07-23T23:18:31.000Z
+        moment(proposta.dataCriacao).tz(PropostaConverter.timeZone).toDate()
+        propostaDTO.dataCriacao =  moment(proposta.dataCriacao).tz(PropostaConverter.timeZone).format('DD-MM-YYYY HH:mm:ss');
+        propostaDTO.dataAlteracao = proposta.dataAlteracao ? moment(proposta.dataAlteracao).tz(PropostaConverter.timeZone).format('DD-MM-YYYY HH:mm:ss') : null;
         propostaDTO.valor = proposta.valor;
         propostaDTO.usuarioAlteracao = proposta.usuarioAlteracao;
         propostaDTO.usuarioCriacao = proposta.usuarioCriacao;
@@ -30,7 +34,7 @@ export class PropostaConverter {
             let proponenteDTO = new ProponenteDTO();
             proponenteDTO.id = proponente.id;
             proponenteDTO.nome = proponente.nome;
-            proponenteDTO.dataNascimento = proponente.dataNascimento;
+            proponenteDTO.dataNascimento = moment(proponente.dataNascimento).tz(PropostaConverter.timeZone).format('DD-MM-YYYY HH:mm:ss');
             proponenteDTO.cpf = proponente.cpf;
             proponenteDTO.rg = proponente.rg;
             proponenteDTO.sexo = proponente.sexo;

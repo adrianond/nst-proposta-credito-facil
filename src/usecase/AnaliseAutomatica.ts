@@ -10,14 +10,12 @@ export class AnaliseAutomatica {
     private readonly logger = new Logger(AnaliseAutomatica.name);
 
     constructor(private readonly cadastroAprovadoRepositoryFacade: CadastroAprovadoRepositoryFacade,
-        private readonly propostaRepositoryFacade: PropostaRepositoryFacade
-    ) {}
+        private readonly propostaRepositoryFacade: PropostaRepositoryFacade) {}
 
     public async executar(proposta: Proposta) {
         const proponente = proposta.proponente;
-
         this.logger.log(`Iniciando analise automatica da proposta: ${proposta.id} => proponente CPF: ${proponente.cpf}`);
-        
+
         const cadastroAprovado = await this.cadastroAprovadoRepositoryFacade.findByCpf(proponente.cpf);
         this.logger.log(`Cadastro aprovado: ${JSON.stringify(cadastroAprovado)}`);
         
