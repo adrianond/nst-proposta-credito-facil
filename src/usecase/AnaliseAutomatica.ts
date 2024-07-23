@@ -17,13 +17,10 @@ export class AnaliseAutomatica {
         const proponente = proposta.proponente;
 
         this.logger.log(`Iniciando analise automatica da proposta: ${proposta.id} => proponente CPF: ${proponente.cpf}`);
-
-        //const cadastros = await this.cadastroAprovadoRepositoryFacade.findAll(proponente.cpf, 1);
-        //this.logger.log(`Cadastros aprovados: ${JSON.stringify(cadastros)}`);
         
         const cadastroAprovado = await this.cadastroAprovadoRepositoryFacade.findByCpf(proponente.cpf);
         this.logger.log(`Cadastro aprovado: ${JSON.stringify(cadastroAprovado)}`);
-
+        
         if (cadastroAprovado) {
             if (this.propostaAprovada(proposta, cadastroAprovado)) {
                 this.logger.log(`Proposta ${proposta.id} aprovada`)

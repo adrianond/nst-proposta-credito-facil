@@ -4,13 +4,15 @@ import { StatusProposta } from "src/database/entity/enumeration/StatusProposta";
 import { DocumentoRepositoryFacade } from "src/database/repository/DocumentoRepositoryFacade";
 import { PropostaRepositoryFacade } from "src/database/repository/PropostaRepositoryFacade";
 import { PropostaNotFoundException } from "src/exception/PropostaNotFoundException";
+import { PropostaCreditoFacilPublisher } from "src/publisher/PropostaCreditoFacilPublisher";
 
 @Injectable()
 export class SalvaDocumento {
     private readonly logger = new Logger(SalvaDocumento.name);
 
     constructor(private readonly propostaRepositoryFacade: PropostaRepositoryFacade,
-        private readonly documentoRepositoryFacade: DocumentoRepositoryFacade) { }
+        private readonly documentoRepositoryFacade: DocumentoRepositoryFacade,
+        private readonly propostaCreditoFacilPublisher: PropostaCreditoFacilPublisher) {}
 
     public async executar(idProposta: number, fileName: string): Promise<void> {
         console.log(idProposta)
@@ -36,6 +38,8 @@ export class SalvaDocumento {
             proposta.dataAlteracao = new Date();
             proposta.usuarioAlteracao = 'USER';
             this.propostaRepositoryFacade.save(proposta);
+
+            this.propostaCreditoFacilPublisher.publish(proposta);
         }
     }
 }

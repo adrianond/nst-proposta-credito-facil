@@ -28,7 +28,7 @@ export class PropostaRepositoryFacadeImpl implements PropostaRepositoryFacade {
 
 
     async save(proposta: Proposta): Promise<Proposta> {
-        this.logger.log(JSON.stringify(proposta), 'Salvando nova proposta de crédito')
+        this.logger.log(JSON.stringify(proposta), 'Salvando proposta de crédito')
 
         this.deleteProposalsCached();
         return await this.propostaRepository.save(proposta);
