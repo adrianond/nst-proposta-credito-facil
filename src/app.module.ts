@@ -34,6 +34,12 @@ import { CadastroAprovado } from './database/entity/CadastroAprovado';
 import { CadastroAprovadoRepository } from './database/repository/CadastroAprovadoRepository';
 import { CadastroAprovadoRepositoryFacade } from './database/repository/CadastroAprovadoRepositoryFacade';
 import { CadastroAprovadoRepositoryFacadeImpl } from './database/repository/CadastroAprovadoRepositoryFacadeImpl';
+import { UploadArquivoController } from './http/controller/UploadArquivoController';
+import { SalvaDocumento } from './usecase/SalvaDocumento';
+import { DocumentoRepository } from './database/repository/DocumentoRepository';
+import { DocumentoRepositoryFacade } from './database/repository/DocumentoRepositoryFacade';
+import { DocumentoRepositoryFacadeImpl } from './database/repository/DocumentoRepositoryFacadeImpl';
+import { Documento } from './database/entity/Documento';
 const { propostaCreditoFacilGroupId, kafkaClientId, kafkaEndPoint } = require('./util/ConfigEnv');
 
 
@@ -62,10 +68,11 @@ const { propostaCreditoFacilGroupId, kafkaClientId, kafkaEndPoint } = require('.
     }),
     TypeOrmModule.forFeature([
       Proposta,
+      Documento,
       Proponente,
       Endereco,
       Telefone,
-      CadastroAprovado
+      CadastroAprovado,
     ]),
     //kafka connection producer
     ClientsModule.register([
@@ -93,7 +100,8 @@ const { propostaCreditoFacilGroupId, kafkaClientId, kafkaEndPoint } = require('.
   ],
   controllers: [
     PropostaCreditoFacilController,
-    ProponenteController
+    ProponenteController,
+    UploadArquivoController
   ],
   providers: [
     CriaProposta,
@@ -101,6 +109,7 @@ const { propostaCreditoFacilGroupId, kafkaClientId, kafkaEndPoint } = require('.
     ExcluiProposta,
     ExcluiProponente,
     ConsultaPropostas,
+    SalvaDocumento,
     AnaliseAutomatica,
     PropostaConverter,
     PropostaRepository,
@@ -108,6 +117,7 @@ const { propostaCreditoFacilGroupId, kafkaClientId, kafkaEndPoint } = require('.
     EnderecoRepository,
     TelefoneRepository,
     CadastroAprovadoRepository,
+    DocumentoRepository,
     RedisService,
     PropostaCreditoFacilPublisher,
     {
@@ -129,6 +139,10 @@ const { propostaCreditoFacilGroupId, kafkaClientId, kafkaEndPoint } = require('.
     {
       provide: CadastroAprovadoRepositoryFacade,
       useClass: CadastroAprovadoRepositoryFacadeImpl,
+    },
+    {
+      provide: DocumentoRepositoryFacade,
+      useClass: DocumentoRepositoryFacadeImpl,
     },
     {
       //create kafka producer

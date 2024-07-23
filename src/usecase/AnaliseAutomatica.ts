@@ -28,12 +28,14 @@ export class AnaliseAutomatica {
             if (this.propostaAprovada(proposta, cadastroAprovado)) {
                 this.logger.log(`Proposta ${proposta.id} aprovada`)
                 proposta.status = StatusProposta.APROVADA.name;
+                proposta.dataAlteracao = new Date();
                 this.propostaRepositoryFacade.save(proposta);
                 return;
             }
         }
         this.logger.log(`Proposta ${proposta.id} em analise manual`)
         proposta.status = StatusProposta.ANALISE_MANUAL.name;
+        proposta.dataAlteracao = new Date();
         this.propostaRepositoryFacade.save(proposta);
     }
 
