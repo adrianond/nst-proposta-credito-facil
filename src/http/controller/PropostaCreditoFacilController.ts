@@ -11,6 +11,7 @@ import { ConsultaPropostasResponse } from "../domain/response/ConsultaPropostasR
 import { MessagePattern, Payload } from "@nestjs/microservices";
 import { AnaliseAutomatica } from "src/usecase/AnaliseAutomatica";
 import { Proposta } from "src/database/entity/Proposta";
+import { EnviaPropostaAprovacao } from "src/usecase/EnviaPropostaAprovacao";
 const { topicoPropostaCreditoFacil } = require('../../util/ConfigEnv');
 
 
@@ -22,7 +23,8 @@ export class PropostaCreditoFacilController {
         private consultaProposta: ConsultaProposta,
         private excluiProposta: ExcluiProposta,
         private consultaPropostas: ConsultaPropostas,
-        private analiseAutomatica: AnaliseAutomatica
+        private analiseAutomatica: AnaliseAutomatica,
+        private enviaPropostaAprovacao: EnviaPropostaAprovacao
     ) {}
 
 
@@ -61,6 +63,15 @@ export class PropostaCreditoFacilController {
     @ApiProduces('application/json')
     async deleteProposalById(@Param('id') id: number): Promise<void> {
         return await (this.excluiProposta.execute(id));
+    }
+
+
+    @Post('/proposal/approval/:id')
+    @HttpCode(200)
+    @ApiOperation({ summary: 'Send proposal approval' })
+    @ApiProduces('application/json')
+    async sendApproval(@Param('id') id: number): Promise<void> {
+        await (this.enviaPropostaAprovacao.execute(id));
     }
 
     

@@ -3,8 +3,10 @@ import { Documento } from "src/database/entity/Documento";
 import { StatusProposta } from "src/database/entity/enumeration/StatusProposta";
 import { DocumentoRepositoryFacade } from "src/database/repository/DocumentoRepositoryFacade";
 import { PropostaRepositoryFacade } from "src/database/repository/PropostaRepositoryFacade";
+import { TipoDocumentoRepositoryFacade } from "src/database/repository/TipoDocumentoRepositoryFacade";
 import { PropostaNotFoundException } from "src/exception/PropostaNotFoundException";
-import { PropostaCreditoFacilPublisher } from "src/publisher/PropostaCreditoFacilPublisher";
+import { TipoDocumentoNotFoundException } from "src/exception/TipoDocumentoNotFoundException";
+
 
 @Injectable()
 export class SalvaDocumento {
@@ -12,19 +14,20 @@ export class SalvaDocumento {
 
     constructor(private readonly propostaRepositoryFacade: PropostaRepositoryFacade,
         private readonly documentoRepositoryFacade: DocumentoRepositoryFacade,
-        private readonly propostaCreditoFacilPublisher: PropostaCreditoFacilPublisher) {}
+        private readonly tipoDocumentoRepositoryFacade: TipoDocumentoRepositoryFacade) { }
 
-    public async executar(idProposta: number, fileName: string): Promise<void> {
-        console.log(idProposta)
+    public async executar(idProposta: number, idDocumento: number, fileName: string): Promise<void> {
+        const tipoDocumento = await this.tipoDocumentoRepositoryFacade.findById(idDocumento);
+        if (!tipoDocumento)
+            throw new TipoDocumentoNotFoundException(`Tipo de documento id ${idDocumento} não encontrado`, HttpStatus.NOT_FOUND);
+
         const proposta = await this.propostaRepositoryFacade.findById(idProposta);
         if (!proposta)
             throw new PropostaNotFoundException(`Proposta id ${idProposta} não encontrada`, HttpStatus.NOT_FOUND);
 
-        console.log(`Proposta: ${JSON.stringify(proposta)}`)
-        
         let documento = new Documento();
         documento.nomeArquivo = fileName;
-        documento.tipo = 'CNH';
+        documento.tipo = tipoDocumento.documento;
         documento.destino = '/app/arquivos/propostaCreditoFacil/documentos'
         documento.dataCriacao = new Date();
         documento.usuarioCriacao = 'USER';
@@ -38,8 +41,6 @@ export class SalvaDocumento {
             proposta.dataAlteracao = new Date();
             proposta.usuarioAlteracao = 'USER';
             this.propostaRepositoryFacade.save(proposta);
-
-            this.propostaCreditoFacilPublisher.publish(proposta);
         }
     }
 }

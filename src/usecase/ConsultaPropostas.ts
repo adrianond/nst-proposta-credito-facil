@@ -15,7 +15,6 @@ export class ConsultaPropostas {
     public async execute(): Promise<ConsultaPropostasResponse> {
         let propostasDTO = new Array<PropostaDTO>;
 
-        
         const propostas = await this.propostaRepositoryFacade.findAll();
         this.logger.log('Consultando propostas:', JSON.stringify(propostas))
 

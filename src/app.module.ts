@@ -40,6 +40,11 @@ import { DocumentoRepository } from './database/repository/DocumentoRepository';
 import { DocumentoRepositoryFacade } from './database/repository/DocumentoRepositoryFacade';
 import { DocumentoRepositoryFacadeImpl } from './database/repository/DocumentoRepositoryFacadeImpl';
 import { Documento } from './database/entity/Documento';
+import { TipoDocumento } from './database/entity/TipoDocumento';
+import { TipoDocumentoRepository } from './database/repository/TipoDocumentoRepository';
+import { TipoDocumentoRepositoryFacade } from './database/repository/TipoDocumentoRepositoryFacade';
+import { TipoDocumentoRepositoryFacadeImpl } from './database/repository/TipoDocumentoRepositoryFacadeImpl';
+import { EnviaPropostaAprovacao } from './usecase/EnviaPropostaAprovacao';
 const { propostaCreditoFacilGroupId, kafkaClientId, kafkaEndPoint } = require('./util/ConfigEnv');
 
 
@@ -73,6 +78,7 @@ const { propostaCreditoFacilGroupId, kafkaClientId, kafkaEndPoint } = require('.
       Endereco,
       Telefone,
       CadastroAprovado,
+      TipoDocumento,
     ]),
     //kafka connection producer
     ClientsModule.register([
@@ -109,6 +115,7 @@ const { propostaCreditoFacilGroupId, kafkaClientId, kafkaEndPoint } = require('.
     ExcluiProposta,
     ExcluiProponente,
     ConsultaPropostas,
+    EnviaPropostaAprovacao,
     SalvaDocumento,
     AnaliseAutomatica,
     PropostaConverter,
@@ -118,6 +125,7 @@ const { propostaCreditoFacilGroupId, kafkaClientId, kafkaEndPoint } = require('.
     TelefoneRepository,
     CadastroAprovadoRepository,
     DocumentoRepository,
+    TipoDocumentoRepository,
     RedisService,
     PropostaCreditoFacilPublisher,
     {
@@ -145,9 +153,13 @@ const { propostaCreditoFacilGroupId, kafkaClientId, kafkaEndPoint } = require('.
       useClass: DocumentoRepositoryFacadeImpl,
     },
     {
+      provide: TipoDocumentoRepositoryFacade,
+      useClass: TipoDocumentoRepositoryFacadeImpl,
+    },
+    {
       //create kafka producer
       provide: 'PROPOSAL_PRODUCER',
-      useFactory: async(kafkaService: ClientKafka) => {
+      useFactory: async (kafkaService: ClientKafka) => {
         return kafkaService.connect();
       },
       inject: ['KAFKA_SERVICE']
@@ -155,4 +167,4 @@ const { propostaCreditoFacilGroupId, kafkaClientId, kafkaEndPoint } = require('.
   ],
   exports: [PropostaRepositoryFacade, ProponenteRepositoryFacade],
 })
-export class AppModule {}
+export class AppModule { }
